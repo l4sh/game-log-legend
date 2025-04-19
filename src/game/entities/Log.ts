@@ -1,0 +1,129 @@
+import Phaser from "phaser";
+
+export class Log {
+  private log: Phaser.Physics.Matter.Image;
+  private ghostLog: Phaser.Physics.Matter.Image;
+  private pivotLog: Phaser.Physics.Matter.Image;
+
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    logWidth: number,
+    logHeight: number,
+    logTexture: string
+  ) {
+    // Main log
+    this.log = scene.matter.add.image(x, y, logTexture, undefined, {
+      shape: {
+        type: "rectangle",
+        width: logWidth,
+        height: logHeight,
+      },
+      // scale: 4,
+      ignoreGravity: true,
+
+      frictionAir: 0,
+      mass: 1,
+    });
+    this.log.setIgnoreGravity(true);
+    this.log.setScale(4);
+    this.log.setDepth(1);
+    this.log.setBounce(0);
+    this.log.setAngle(0);
+    this.log.setDensity(1000);
+    this.log.setVisible(true); // Hide the log
+
+    // NOTE: both origin and positon with offset need to be set to correctly
+    // position the log around an external pivot point
+    this.log.setOrigin(0.5, 2.8);
+
+    // Fix pivot point
+    const logBody = this.log.body;
+    const offset = {
+      x: 0,
+      y: logHeight * 9,
+    };
+    logBody.positionPrev.x += offset.x;
+    logBody.positionPrev.y += offset.y;
+    logBody.position.x += offset.x;
+    logBody.position.y += offset.y;
+    // --
+    console.log({ body: this.log.body });
+    console.log("center of mass:", this.log.centerOfMass);
+
+    // Ghost log, this is to be able to use static and not be affected by other
+    // items weight... Is there a better way to handle this?
+    this.ghostLog = scene.matter.add.image(x, y, logTexture, undefined, {
+      shape: {
+        type: "rectangle",
+        width: logWidth,
+        height: logHeight,
+      },
+    });
+    this.ghostLog.setOrigin(0.5);
+    this.ghostLog.setScale(4);
+    this.ghostLog.setStatic(true);
+    this.ghostLog.setVisible(false);
+
+    // Apply offset also to ghost log
+    const ghostLogBody = this.ghostLog.body;
+    ghostLogBody.positionPrev.x += offset.x;
+    ghostLogBody.positionPrev.y += offset.y;
+    ghostLogBody.position.x += offset.x;
+    ghostLogBody.position.y += offset.y;
+
+    // Collisions are selective
+    const logCategory = scene.matter.world.nextCategory();
+    const ghostLogCategory = scene.matter.world.nextCategory();
+
+    this.log.setCollisionCategory(logCategory);
+    this.ghostLog.setCollisionCategory(ghostLogCategory);
+    this.ghostLog.setCollidesWith([]); // Adjust as needed
+  }
+
+  setPosition(x: number, y: number) {
+    this.log.setPosition(x, y);
+    this.ghostLog.setPosition(x, y);
+  }
+
+  setAngle(angle: number) {
+    this.log.setAngle(angle);
+    this.ghostLog.setAngle(angle);
+  }
+
+  setVelocity(x: number, y: number) {
+    this.log.setVelocity(x, y);
+  }
+
+  setIgnoreGravity(ignore: boolean) {
+    this.log.setIgnoreGravity(ignore);
+  }
+
+  setAngularVelocity(velocity: number) {
+    // this.log.positionPrev.y += offset.y;
+    console.log("Angular velocity set to: ", velocity);
+    this.log.setAngularVelocity(velocity);
+  }
+
+  get x() {
+    return this.log.x;
+  }
+
+  get y() {
+    return this.log.y;
+  }
+
+  get angle() {
+    return this.log.angle;
+  }
+
+  drop() {
+    this.log.setIgnoreGravity(false);
+  }
+
+  sync() {
+    this.ghostLog.setPosition(this.log.x, this.log.y);
+    this.ghostLog.setAngle(this.log.angle);
+  }
+}

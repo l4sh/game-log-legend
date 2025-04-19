@@ -13,19 +13,26 @@ const config: Phaser.Types.Core.GameConfig = {
   height: 768,
   parent: "game-container",
   backgroundColor: "#028af8",
-  scene: [
-    Boot,
-    Preloader,
-    MainMenu,
-    MainGame,
-    GameOver
-  ]
+  scene: [Boot, Preloader, MainMenu, MainGame, GameOver],
+
+  physics: {
+    default: "matter",
+    matter: {
+      debug: {
+        lineColor: 0xff0000, // Red color for the debug box
+      },
+    },
+  },
+
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  antialias: false,
 };
 
 const StartGame = (parent: string) => {
-
   return new Game({ ...config, parent });
-
-}
+};
 
 export default StartGame;
