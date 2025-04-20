@@ -28,7 +28,7 @@ export class Log {
     });
     this.log.setIgnoreGravity(true);
     this.log.setScale(4);
-    this.log.setDepth(1);
+    this.log.setDepth(20);
     this.log.setBounce(0);
     this.log.setAngle(0);
     this.log.setDensity(1000);
@@ -49,8 +49,6 @@ export class Log {
     logBody.position.x += offset.x;
     logBody.position.y += offset.y;
     // --
-    console.log({ body: this.log.body });
-    console.log("center of mass:", this.log.centerOfMass);
 
     // Ghost log, this is to be able to use static and not be affected by other
     // items weight... Is there a better way to handle this?
@@ -102,7 +100,6 @@ export class Log {
 
   setAngularVelocity(velocity: number) {
     // this.log.positionPrev.y += offset.y;
-    console.log("Angular velocity set to: ", velocity);
     this.log.setAngularVelocity(velocity);
   }
 

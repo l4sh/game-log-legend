@@ -12,6 +12,8 @@ const LOG_DROP_ANGLE = 20;
 const Y_WALK_MIN = 0.75;
 const Y_WALK_MAX = 0.85;
 
+const MAX_WALKED_BACK = 7;
+
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   background: Phaser.GameObjects.Image;
@@ -30,6 +32,16 @@ export class Game extends Scene {
   isMovingLeft: boolean;
   isMovingRight: boolean;
 
+  // Game state
+  score: number;
+  // Distance walked
+  walked: number;
+  // Goal distance
+  goal: number;
+  // Distance walked back
+  // If too long the game is over
+  walkedBack: number;
+
   constructor() {
     super("Game");
     this.xInertia = 0;
@@ -41,6 +53,11 @@ export class Game extends Scene {
     this.isMovingBackward = false;
     this.isMovingLeft = false;
     this.isMovingRight = false;
+
+    this.score = 0;
+    this.walked = 0;
+    this.goal = 100;
+    this.walkedBack = 0;
   }
 
   create() {
@@ -56,6 +73,7 @@ export class Game extends Scene {
     // Only use 1px of the bg
     // TODO: Add more backgrounds
     backgrounds.setCrop(0, 0, 1, backgrounds.height);
+    backgrounds.setDepth(0);
     //-
 
     const centerX = (this.game.config.width as number) / 2;
@@ -92,8 +110,24 @@ export class Game extends Scene {
   }
 
   update() {
+    EventBus.emit("update-scene-state", this);
+
+    if (this.isGameOver) {
+      return; // Prevent further updates if the game is over
+    }
+
     // sync logs
     this.log.sync(); // TODO: UNCOMMENT
+
+    if (this.walked >= this.goal) {
+      this.setGameOver();
+      return;
+    }
+
+    if (this.walkedBack >= MAX_WALKED_BACK) {
+      this.setGameOver();
+      return;
+    }
 
     const centerX = (this.game.config.width as number) / 2;
     const centerY = (this.game.config.height as number) / 2;
@@ -145,35 +179,44 @@ export class Game extends Scene {
     const yWalkMax = (this.game.config.height as number) * Y_WALK_MAX;
     const yWalkMiddle = (yWalkMin + yWalkMax) / 2;
 
-    if (
-      !this.isGameOver &&
-      (Math.abs(this.log.angle) > 3 ||
-        this.strongman.y < yWalkMiddle * 0.995 ||
-        this.strongman.y > yWalkMiddle * 1.009)
-    ) {
-      this.strongman.playWalkAnimation();
-      if (this.strongman.y < yWalkMiddle) {
+    if (!this.isGameOver) {
+      if (this.strongman.y < yWalkMiddle - 3) {
         this.isMovingForward = true;
         this.isMovingBackward = false;
-      } else if (this.strongman.y > yWalkMiddle) {
+      } else if (this.strongman.y > yWalkMiddle + 3) {
         this.isMovingBackward = true;
         this.isMovingForward = false;
       } else {
         this.isMovingBackward = false;
         this.isMovingForward = false;
       }
-    } else {
-      this.strongman.stopWalkAnimation();
+
+      if (
+        Math.abs(this.log.angle) > 3 ||
+        this.isMovingBackward ||
+        this.isMovingForward
+      ) {
+        this.strongman.playWalkAnimation();
+      } else {
+        this.strongman.stopWalkAnimation();
+      }
     }
 
     if (this.isMovingForward) {
       this.lines.forEach((line) => {
         line.moveBy(0, -this.yInertia);
       });
+      const step = Math.abs(this.yInertia) / 10;
+      this.walked += step;
+      this.walkedBack = Math.max(0, this.walkedBack - step); // Consider cases where walked forth and back but back is larger
+      this.score = Math.round(this.walked) * 100;
     } else if (this.isMovingBackward) {
       this.lines.forEach((line) => {
         line.moveBy(0, -this.yInertia);
       });
+      const step = Math.abs(this.yInertia) / 10;
+      this.walked -= step;
+      this.walkedBack += step;
     }
 
     if (

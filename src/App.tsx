@@ -1,19 +1,47 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { IRefPhaserGame, PhaserGame } from "./game/PhaserGame";
 import { MainMenu } from "./game/scenes/MainMenu";
+import { EventBus } from "./game/EventBus";
+
 
 function App()
 {
-  const debug = false;
+  const debug = true;
   // The sprite can only be moved in the MainMenu Scene
   const [canMoveSprite, setCanMoveSprite] = useState(true);
 
   //  References to the PhaserGame component (game and scene are exposed)
   const phaserRef = useRef<IRefPhaserGame | null>(null);
   const [spritePosition, setSpritePosition] = useState({ x: 0, y: 0 });
+  const [gameState, setGameState] = useState({ isGameOver: false, score: 0, logAngle: 0, xPos: 0, yPos: 0, xInertia: 0, yInertia: 0, walkedBack: 0, walked: 0 });
+  const [_, forceRender] = useState(0);
+
+  useEffect(() => {
+    const handleGameStateChange = (state: Phaser.Scene) => {
+      let { isGameOver, score, xPos, yPos, xInertia, yInertia, walkedBack, walked } = state;
+      let logAngle = state.log.angle;
+
+      xInertia = Math.round(xInertia * 100) / 100;
+      yInertia = Math.round(yInertia * 100) / 100;
+      logAngle = Math.round(logAngle * 100) / 100;
+
+      setGameState((prev) => {
+        if (prev.isGameOver !== isGameOver || prev.score !== score || prev.logAngle !== logAngle || prev.xPos !== xPos || prev.yPos !== yPos || prev.xInertia !== xInertia || prev.yInertia !== yInertia || prev.walkedBack !== walkedBack || prev.walked !== walked) { // Added walkedBack and walked to the condition
+          return { isGameOver, score, logAngle, xPos, yPos, xInertia, yInertia, walkedBack, walked }; // Update only if relevant state changes
+        }
+        return prev; // No update if state is unchanged
+      });
+    };
+
+    EventBus.on("update-scene-state", handleGameStateChange);
+
+    return () => {
+      EventBus.off("update-scene-state", handleGameStateChange);
+    };
+  }, []);
 
   const changeScene = () => {
-
+    // TODO: add here start game??
     if(phaserRef.current)
     {
       const scene = phaserRef.current.scene as MainMenu;
@@ -45,34 +73,6 @@ function App()
 
   }
 
-  const addSprite = () => {
-
-    if (phaserRef.current)
-    {
-      const scene = phaserRef.current.scene;
-
-      if (scene)
-      {
-        // Add more stars
-        const x = Phaser.Math.Between(64, scene.scale.width - 64);
-        const y = Phaser.Math.Between(64, scene.scale.height - 64);
-
-        //  `add.sprite` is a Phaser GameObjectFactory method and it returns a Sprite Game Object instance
-        const star = scene.add.sprite(x, y, "star");
-
-        //  ... which you can then act upon. Here we create a Phaser Tween to fade the star sprite in and out.
-        //  You could, of course, do this from within the Phaser Scene code, but this is just an example
-        //  showing that Phaser objects and systems can be acted upon from outside of Phaser itself.
-        scene.add.tween({
-          targets: star,
-          duration: 500 + Math.random() * 1000,
-          alpha: 0,
-          yoyo: true,
-          repeat: -1
-        });
-      }
-    }
-  }
 
   // Event emitted from the PhaserGame component
   const currentScene = (scene: Phaser.Scene) => {
@@ -83,22 +83,23 @@ function App()
 
   const renderDebugPanel = () => {
     return (
-      <div>
+      <div style={{ position: "absolute", top: 200, right: 300, zIndex: 1000, color: "red", fontWeight: "bold" }}>
+        <h2>Debug:</h2>
         <div>
-          <button className="button" onClick={changeScene}>Change Scene</button>
-        </div>
-        <div>
-          <button disabled={canMoveSprite} className="button" onClick={moveSprite}>Toggle Movement</button>
-        </div>
-        <div className="spritePosition">Sprite Position:
-          <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
-        </div>
-        <div>
-          <button className="button" onClick={addSprite}>Add New Sprite</button>
+          <p>Is Game Over: {gameState.isGameOver ? "Yes" : "No"}</p>
+          <p>Current Score: {gameState.score || 0}</p>
+          <p>Log Angle: {gameState.logAngle || 0}</p>
+          <p>X Position: {gameState.xPos || 0}</p>
+          <p>Y Position: {gameState.yPos || 0}</p>
+          <p>X Inertia: {gameState.xInertia || 0}</p>
+          <p>Y Inertia: {gameState.yInertia || 0}</p>
+          <p>Walked: {gameState.walked || 0}</p>
+          <p>Walked Back: {gameState.walkedBack || 0}</p>
+
         </div>
       </div>
-    );
-  }
+    )
+  };
 
   return (
     <div id="app">
@@ -111,4 +112,4 @@ function App()
   )
 }
 
-export default App
+export default App;

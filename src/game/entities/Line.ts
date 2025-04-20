@@ -15,7 +15,7 @@ export class Line {
   ) {
     this.line = scene.add.image(x, y, texture);
     this.line.setOrigin(0.5, 0.5);
-    this.line.setDepth(0);
+    this.line.setDepth(1);
     this.lineArea = lineArea;
     this.offsetY = offsetY;
   }

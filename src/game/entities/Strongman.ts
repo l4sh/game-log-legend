@@ -12,6 +12,7 @@ export class Strongman {
     this.bottom = scene.add.sprite(x, y, "strongman-bottom");
     this.bottom.setOrigin(0.5, 1); // Top pivots at the center bottom
     this.bottom.setScale(4);
+    this.bottom.setDepth(10);
 
     // Top
     this.top = scene.add.image(
@@ -21,6 +22,7 @@ export class Strongman {
     );
     this.top.setOrigin(0.5, 1);
     this.top.setScale(4);
+    this.top.setDepth(11);
 
     // Walk animation
     // TODO: Add faster animation to use when tumbling
