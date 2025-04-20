@@ -81,6 +81,22 @@ function App()
 
   }
 
+  const renderHud = () => {
+    return (
+      <div className="hud">
+        <div className="top">
+          <div>Score: {gameState.score || 0}</div>
+          <div>Foo: 100</div>
+          <div>Bar: 33</div>
+        </div>
+        <div className="bottom">
+          <div>Walked: {gameState.walked || 0}</div>
+          <div>Walked Back: {gameState.walkedBack || 0}</div>
+        </div>
+      </div>
+    )
+  }
+
   const renderDebugPanel = () => {
     return (
       <div style={{ position: "absolute", top: 200, right: 300, zIndex: 1000, color: "red", fontWeight: "bold" }}>
@@ -103,6 +119,7 @@ function App()
 
   return (
     <div id="app">
+      {renderHud()}
       <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
 
       {debug && (

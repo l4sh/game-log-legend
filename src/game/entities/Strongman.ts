@@ -21,8 +21,8 @@ export class Strongman {
       "strongman-top"
     );
     this.top.setOrigin(0.5, 1);
-    this.top.setScale(4);
-    this.top.setDepth(11);
+    this.top.setScale(4); // TODO: calculate scale depending on screen size
+    this.top.setDepth(11); // TODO: calculate scale depending on screen size
 
     // Walk animation
     // TODO: Add faster animation to use when tumbling

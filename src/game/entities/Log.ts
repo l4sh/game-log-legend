@@ -27,7 +27,7 @@ export class Log {
       mass: 1,
     });
     this.log.setIgnoreGravity(true);
-    this.log.setScale(4);
+    this.log.setScale(4); // TODO: calculate scale depending on screen size
     this.log.setDepth(20);
     this.log.setBounce(0);
     this.log.setAngle(0);
@@ -60,7 +60,7 @@ export class Log {
       },
     });
     this.ghostLog.setOrigin(0.5);
-    this.ghostLog.setScale(4);
+    this.ghostLog.setScale(4); // TODO: calculate scale depending on screen size
     this.ghostLog.setStatic(true);
     this.ghostLog.setVisible(false);
 

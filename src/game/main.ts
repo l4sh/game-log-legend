@@ -9,8 +9,11 @@ import { Preloader } from "./scenes/Preloader";
 //  https://newdocs.phaser.io/docs/3.70.0/Phaser.Types.Core.GameConfig
 const config: Phaser.Types.Core.GameConfig = {
   type: AUTO,
-  width: 1024,
-  height: 768,
+  // width: 1024,
+  width: window.innerWidth,
+  // height: 768,
+  height: window.innerHeight,
+
   parent: "game-container",
   backgroundColor: "#028af8",
   scene: [Boot, Preloader, MainMenu, MainGame, GameOver],
@@ -25,7 +28,8 @@ const config: Phaser.Types.Core.GameConfig = {
   },
 
   scale: {
-    mode: Phaser.Scale.FIT,
+    // mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.RESIZE, // dynamic aspect ratio
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   antialias: false,

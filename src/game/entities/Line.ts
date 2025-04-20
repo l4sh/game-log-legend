@@ -16,6 +16,7 @@ export class Line {
     this.line = scene.add.image(x, y, texture);
     this.line.setOrigin(0.5, 0.5);
     this.line.setDepth(1);
+    this.line.setScale(2); // TODO: calculate scale depending on screen size
     this.lineArea = lineArea;
     this.offsetY = offsetY;
   }

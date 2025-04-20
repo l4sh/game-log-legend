@@ -64,16 +64,16 @@ export class Game extends Scene {
     this.camera = this.cameras.main;
 
     // TODO: Handle multiple backgrounds
-    const backgrounds = this.add.image(0, 0, "backgrounds").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "backgrounds").setOrigin(0, 0);
     // Scale background
-    const scaleX = this.scale.width / backgrounds.width;
-    const scaleY = this.scale.height / backgrounds.height;
-    backgrounds.setScale(scaleX, scaleY);
+    const scaleX = this.scale.width / this.background.width;
+    const scaleY = this.scale.height / this.background.height;
+    this.background.setScale(scaleX, scaleY);
 
     // Only use 1px of the bg
     // TODO: Add more backgrounds
-    backgrounds.setCrop(0, 0, 1, backgrounds.height);
-    backgrounds.setDepth(0);
+    this.background.setCrop(0, 0, 1, this.background.height);
+    this.background.setDepth(0);
     //-
 
     const centerX = (this.game.config.width as number) / 2;
@@ -99,6 +99,17 @@ export class Game extends Scene {
 
     // Initialize input
     this.inputManager = new InputManager(this);
+
+    // Resize background on game window rezise
+    this.scale.on("resize", (gameSize: Phaser.Structs.Size) => {
+      console.log("resize", gameSize);
+      const width = gameSize.width;
+      const height = gameSize.height;
+
+      const scaleX = width / this.background.width;
+      const scaleY = height / this.background.height;
+      this.background.setScale(scaleX, scaleY);
+    });
 
     EventBus.emit("current-scene-ready", this);
   }
