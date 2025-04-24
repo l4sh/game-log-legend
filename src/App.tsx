@@ -18,12 +18,15 @@ function App()
 
   useEffect(() => {
     const handleGameStateChange = (state: Phaser.Scene) => {
+      // TODO: rework this.
       let { isGameOver, score, xPos, yPos, xInertia, yInertia, walkedBack, walked } = state;
       let logAngle = state.log.angle;
 
       xInertia = Math.round(xInertia * 100) / 100;
       yInertia = Math.round(yInertia * 100) / 100;
       logAngle = Math.round(logAngle * 100) / 100;
+      walked = Math.round(walked * 100) / 100;
+      walkedBack = Math.round(walkedBack * 100) / 100;
 
       setGameState((prev) => {
         if (prev.isGameOver !== isGameOver || prev.score !== score || prev.logAngle !== logAngle || prev.xPos !== xPos || prev.yPos !== yPos || prev.xInertia !== xInertia || prev.yInertia !== yInertia || prev.walkedBack !== walkedBack || prev.walked !== walked) { // Added walkedBack and walked to the condition
@@ -90,8 +93,8 @@ function App()
           <div>Bar: 33</div>
         </div>
         <div className="bottom">
-          <div>Walked: {gameState.walked || 0}</div>
-          <div>Walked Back: {gameState.walkedBack || 0}</div>
+          <div>Walked: {Math.round(gameState.walked  - gameState.walkedBack) || 0.00}</div>
+          <div></div>
         </div>
       </div>
     )

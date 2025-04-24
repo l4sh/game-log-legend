@@ -5,15 +5,12 @@ export class Log {
   private ghostLog: Phaser.Physics.Matter.Image;
   private pivotLog: Phaser.Physics.Matter.Image;
 
-  constructor(
-    scene: Phaser.Scene,
-    x: number,
-    y: number,
-    logWidth: number,
-    logHeight: number,
-    logTexture: string
-  ) {
-    // Main log
+  constructor(scene: Phaser.Scene, x: number, y: number) {
+    const logTexture = "log";
+    const { width: logWidth, height: logHeight } = scene.textures
+      .get("log")
+      .get();
+
     this.log = scene.matter.add.image(x, y, logTexture, undefined, {
       shape: {
         type: "rectangle",

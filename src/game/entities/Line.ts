@@ -57,18 +57,23 @@ export class Line {
 export const genLines = (
   scene: Phaser.Scene,
   amount: number,
-  lineTexture: string
+  lineTexture: string,
+  linesStartY: number = 0,
+  linesEndY: number = 0
 ) => {
   lineTexture = lineTexture || "line";
   const lines: Line[] = [];
-  const lineArea = scene.scale.height / 2;
-  const offsetY = lineArea * 1.3;
+  // const lineArea = scene.scale.height / 2;
+  // const offsetY = lineArea * 1.3;
+
+  const lineArea = linesEndY - linesStartY;
 
   for (let i = 0; i < amount; i++) {
     const x = Phaser.Math.Between(0, scene.scale.width);
     // Lines are only drawn in the lower part of the screen
-    const y = (lineArea / amount) * i + offsetY;
-    const line = new Line(scene, x, y, lineTexture, lineArea, offsetY);
+    // const y = (lineArea / amount) * i + offsetY;
+    const y = (lineArea / amount) * i + linesStartY;
+    const line = new Line(scene, x, y, lineTexture, lineArea, linesStartY);
     lines.push(line);
   }
   return lines;

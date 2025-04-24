@@ -6,11 +6,13 @@ import { Strongman } from "../entities/Strongman";
 import { Log } from "../entities/Log";
 import { Line, genLines } from "../entities/Line";
 
+import { GridLayout } from "../../GridLayout";
+
 const X_INERTIA = 0.05;
 const Y_INERTIA = 0.05;
 const LOG_DROP_ANGLE = 20;
-const Y_WALK_MIN = 0.75;
-const Y_WALK_MAX = 0.85;
+const Y_WALK_MIN_ROW = 9;
+const Y_WALK_MAX_ROW = 11;
 
 const MAX_WALKED_BACK = 7;
 
@@ -42,6 +44,8 @@ export class Game extends Scene {
   // If too long the game is over
   walkedBack: number;
 
+  gridLayout: GridLayout;
+
   constructor() {
     super("Game");
     this.xInertia = 0;
@@ -61,6 +65,13 @@ export class Game extends Scene {
   }
 
   create() {
+    this.gridLayout = new GridLayout(
+      12,
+      12,
+      this.game.config.width as number,
+      this.game.config.height as number
+    );
+
     this.camera = this.cameras.main;
 
     // TODO: Handle multiple backgrounds
@@ -76,23 +87,25 @@ export class Game extends Scene {
     this.background.setDepth(0);
     //-
 
-    const centerX = (this.game.config.width as number) / 2;
-    const centerY = (this.game.config.height as number) / 2;
+    this.strongman = new Strongman(
+      this,
+      this.gridLayout.centerX,
+      this.gridLayout.row(10)
+    );
 
-    const strongmanY = centerY * 1.6;
+    this.log = new Log(this, this.gridLayout.centerX, this.gridLayout.row(6));
 
-    this.strongman = new Strongman(this, centerX, strongmanY);
-    // this.strongman.playWalkAnimation();
-    this.log = new Log(this, centerX, centerY, 96, 16, "log");
-
-    // this.log = new Log(this, centerX, centerY * 1.29, 96, 16, "log");
-
-    // Example usage
     this.log.setVelocity(0, 0);
     this.log.setIgnoreGravity(true);
 
     // Lines used as visual cues for front/back movement
-    this.lines = genLines(this, 20, "line");
+    this.lines = genLines(
+      this,
+      20,
+      "line",
+      this.gridLayout.row(7),
+      this.gridLayout.row(12)
+    );
 
     // TODO: Add clouds??
     // TODO: Add sun??
@@ -110,6 +123,8 @@ export class Game extends Scene {
       const scaleY = height / this.background.height;
       this.background.setScale(scaleX, scaleY);
     });
+
+    // TODO: resize strongman, log, items on resize??
 
     EventBus.emit("current-scene-ready", this);
   }
@@ -140,25 +155,11 @@ export class Game extends Scene {
       return;
     }
 
-    const centerX = (this.game.config.width as number) / 2;
-    const centerY = (this.game.config.height as number) / 2;
-
-    // if (!this.isGamePaused && !this.isGameOver) {
-    //   if (this.logXInertia === 0) {
-    //     this.logXInertia = (Math.random() - 0.5) / 10;
-    //   }
-
-    //   this.logXInertia *= 1.01;
-    //   this.log.setAngularVelocity(this.logXInertia / 100);
-    // )
     if (!this.isGameOver && this.inputManager.isMovingLeft()) {
       this.xInertia -= X_INERTIA;
-      // this.strongman.setPosition(this.strongman.x - 5, this.strongman.y);
       this.log.setAngularVelocity(this.xInertia / 100);
-      // this.log.setAngularVelocity(-0.1);
     } else if (!this.isGameOver && this.inputManager.isMovingRight()) {
       this.xInertia += X_INERTIA;
-      // this.strongman.setPosition(this.strongman.x + 5, this.strongman.y);
       this.log.setAngularVelocity(this.xInertia / 100);
     }
 
@@ -180,14 +181,8 @@ export class Game extends Scene {
       this.log.setPosition(Xposition, this.log.y);
     }
 
-    // if (!this.isGameOver && Math.abs(this.log.angle) > 3) {
-    //   this.strongman.playWalkAnimation();
-    // } else {
-    //   // this.strongman.stopWalkAnimation();
-    // }
-
-    const yWalkMin = (this.game.config.height as number) * Y_WALK_MIN;
-    const yWalkMax = (this.game.config.height as number) * Y_WALK_MAX;
+    const yWalkMin = this.gridLayout.row(Y_WALK_MIN_ROW);
+    const yWalkMax = this.gridLayout.row(Y_WALK_MAX_ROW);
     const yWalkMiddle = (yWalkMin + yWalkMax) / 2;
 
     if (!this.isGameOver) {
