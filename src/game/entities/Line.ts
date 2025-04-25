@@ -16,7 +16,7 @@ export class Line {
     this.line = scene.add.image(x, y, texture);
     this.line.setOrigin(0.5, 0.5);
     this.line.setDepth(1);
-    this.line.setScale(2); // TODO: calculate scale depending on screen size
+    this.line.setScale(scene.entityScale / 2); // TODO: calculate scale depending on screen size
     this.lineArea = lineArea;
     this.offsetY = offsetY;
   }
@@ -63,7 +63,7 @@ export const genLines = (
 ) => {
   lineTexture = lineTexture || "line";
   const lines: Line[] = [];
-  // const lineArea = scene.scale.height / 2;
+  // const lineArea = scene.entityScale.height / 2;
   // const offsetY = lineArea * 1.3;
 
   const lineArea = linesEndY - linesStartY;

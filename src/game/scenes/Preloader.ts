@@ -35,6 +35,11 @@ export class Preloader extends Scene {
       frameHeight: 32,
     });
     this.load.image("line", "line.png");
+
+    this.load.image("box_1", "box_1.png");
+    this.load.image("box_2", "box_2.png");
+    this.load.image("mini_log_1", "mini_log_1.png");
+    this.load.image("mini_log_2", "mini_log_2.png");
   }
 
   create() {

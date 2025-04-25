@@ -11,7 +11,7 @@ export class Strongman {
     // Bottom
     this.bottom = scene.add.sprite(x, y, "strongman-bottom");
     this.bottom.setOrigin(0.5, 1); // Top pivots at the center bottom
-    this.bottom.setScale(4);
+    this.bottom.setScale(scene.entityScale);
     this.bottom.setDepth(10);
 
     // Top
@@ -21,7 +21,7 @@ export class Strongman {
       "strongman-top"
     );
     this.top.setOrigin(0.5, 1);
-    this.top.setScale(4); // TODO: calculate scale depending on screen size
+    this.top.setScale(scene.entityScale); // TODO: calculate scale depending on screen size
     this.top.setDepth(11); // TODO: calculate scale depending on screen size
 
     // Walk animation
@@ -60,5 +60,23 @@ export class Strongman {
 
   get y() {
     return this.bottom.y;
+  }
+
+  get topheight() {
+    return this.top.displayHeight;
+  }
+  get topwidth() {
+    return this.top.displayWidth;
+  }
+
+  get bottomheight() {
+    return this.bottom.displayHeight;
+  }
+  get bottomwidth() {
+    return this.bottom.displayWidth;
+  }
+
+  get height() {
+    return this.bottom.displayHeight + this.top.displayHeight;
   }
 }
