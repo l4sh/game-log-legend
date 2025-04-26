@@ -22,6 +22,7 @@ const DROP_ITEM_EVERY_N_STEPS = 30; // in ms
 const BONUS_EVERY_N_STEPS = 10; // in ms
 const SCORE_MULTIPLIER = 10;
 const BONUS_MULTIPLIER = 100;
+const PENALIZATION_MULTIPLIER = 1000;
 
 const Y_STRONGMAN_ROW = 20;
 const Y_LINE_START_ROW = 15;
@@ -184,8 +185,6 @@ export class Game extends Scene {
       event.pairs.forEach((pair) => {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
-
-        console.log("Collision detected between bodies:", bodyA, bodyB);
       });
     });
 
@@ -229,9 +228,8 @@ export class Game extends Scene {
 
   checkAndDiscardItems() {
     this.items.forEach((item) => {
-      // Check if the item is out of bounds
       if (item.y > this.gridLayout.screenHeight + 2) {
-        const penalization = item.multiplier * 100;
+        const penalization = item.multiplier * PENALIZATION_MULTIPLIER;
         this.score -= penalization;
 
         EventBus.emit("item-dropped", penalization);
@@ -284,6 +282,7 @@ export class Game extends Scene {
     // sync logs
 
     this.checkAndApplyScore();
+    this.checkAndDiscardItems();
 
     // TODO: add goal and levels later??
     // if (this.walked >= this.goal) {
