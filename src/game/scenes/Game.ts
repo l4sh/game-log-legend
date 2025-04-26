@@ -295,6 +295,15 @@ export class Game extends Scene {
       this.setGameOver();
       return;
     }
+    if (!this.isGameOver) {
+      // Even if cursors are not pressed the log should keep moving
+      if (this.xInertia === 0) {
+        this.xInertia = (Math.random() - 0.5) / 10;
+      }
+
+      this.xInertia *= 1.01;
+      this.log.setAngularVelocity(this.xInertia / 100);
+    }
 
     if (!this.isGameOver && this.inputManager.isMovingLeft()) {
       this.xInertia -= X_INERTIA;
