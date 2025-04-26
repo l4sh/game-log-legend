@@ -13,7 +13,7 @@ import { GridLayout } from "../../GridLayout";
 const X_INERTIA = 0.05;
 const Y_INERTIA = 0.05;
 const LOG_DROP_ANGLE = 20;
-const Y_WALK_MIN_ROW = 18;
+const Y_WALK_MIN_ROW = 19;
 const Y_WALK_MID_ROW = 20;
 const Y_WALK_MAX_ROW = 24;
 
@@ -84,7 +84,26 @@ export class Game extends Scene {
     this.entityScale = 1;
   }
 
+  setInitialState() {
+    this.xInertia = 0;
+    this.yInertia = 0;
+    this.isGamePaused = false;
+    this.isGameOver = false;
+
+    this.isMovingForward = false;
+    this.isMovingBackward = false;
+    this.isMovingLeft = false;
+    this.isMovingRight = false;
+
+    this.score = 0;
+    this.walked = 0;
+    this.goal = 1000;
+    this.walkedBack = 0;
+  }
+
   create() {
+    this.setInitialState();
+
     this.gridLayout = new GridLayout(
       16,
       24,
@@ -92,8 +111,8 @@ export class Game extends Scene {
       this.game.config.height as number
     );
 
-    this.matter.world.createDebugGraphic();
-    this.matter.world.drawDebug = true;
+    // this.matter.world.createDebugGraphic();
+    // this.matter.world.drawDebug = true;
 
     // Initialize collision categories
     ["strongman", "log", "item", "obstacle"].forEach((category) => {
@@ -174,6 +193,14 @@ export class Game extends Scene {
     this.isGameOver = true;
     this.log.drop();
     this.strongman.stopWalkAnimation();
+
+    // Wait 3 seconds and then change scene to "GameOver" scene
+    setTimeout(() => {
+      this.scene.start("GameOver", {
+        score: this.score,
+        walked: this.walked,
+      });
+    }, 1000);
   }
 
   checkAndDropItems() {

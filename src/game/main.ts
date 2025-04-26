@@ -21,9 +21,9 @@ const config: Phaser.Types.Core.GameConfig = {
   physics: {
     default: "matter",
     matter: {
-      debug: {
-        lineColor: 0xff0000, // Red color for the debug box
-      },
+      // debug: {
+      //   // lineColor: 0xff0000, // Red color for the debug box
+      // },
     },
   },
 
