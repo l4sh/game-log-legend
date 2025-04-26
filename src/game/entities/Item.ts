@@ -89,6 +89,10 @@ export class Item {
   drop() {
     this.item.setIgnoreGravity(false);
   }
+
+  destroy() {
+    this.item.destroy();
+  }
 }
 
 export const dropItems = (

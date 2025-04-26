@@ -19,6 +19,9 @@ const Y_WALK_MAX_ROW = 24;
 
 const MAX_WALKED_BACK = 7;
 const DROP_ITEM_EVERY_N_STEPS = 30; // in ms
+const BONUS_EVERY_N_STEPS = 10; // in ms
+const SCORE_MULTIPLIER = 10;
+const BONUS_MULTIPLIER = 100;
 
 const Y_STRONGMAN_ROW = 20;
 const Y_LINE_START_ROW = 15;
@@ -34,6 +37,8 @@ export class Game extends Scene {
   lines: Line[];
   items: Item[];
   lastItemDropAt: number = 0;
+  lastBonusAt: number = 0;
+  lastScoreAt: number = 0;
   // Object with key as string and value as collision category
   collisionCategories: Record<string, number>;
   inputManager: InputManager;
@@ -222,6 +227,48 @@ export class Game extends Scene {
     this.lastItemDropAt = this.walked;
   }
 
+  checkAndDiscardItems() {
+    this.items.forEach((item) => {
+      // Check if the item is out of bounds
+      if (item.y > this.gridLayout.screenHeight + 2) {
+        const penalization = item.multiplier * 100;
+        this.score -= penalization;
+
+        EventBus.emit("item-dropped", penalization);
+        item.destroy();
+        this.items = this.items.filter((i) => i !== item);
+        console.log("Item dropped:", item.type, penalization);
+      }
+    });
+  }
+
+  checkAndApplyScore() {
+    const walked = Math.floor(this.walked);
+    if (walked <= this.lastScoreAt) {
+      return;
+    }
+
+    this.lastScoreAt = walked;
+    this.score += 1 * SCORE_MULTIPLIER;
+    console.log("Current score:", this.score);
+    if (this.lastBonusAt + BONUS_EVERY_N_STEPS > walked) {
+      return;
+    }
+    // Calculate bonus depending on items carried
+    // summ all items multipliers
+    const totalMultiplier = this.items.reduce(
+      (acc, item) => acc + item.multiplier,
+      0
+    );
+
+    const bonus = BONUS_MULTIPLIER * totalMultiplier;
+    this.score += bonus;
+
+    EventBus.emit("bonus-applied", bonus);
+    this.lastBonusAt = this.walked;
+    console.log("Bonus applied:", bonus);
+  }
+
   update() {
     EventBus.emit("update-scene-state", this);
 
@@ -236,10 +283,13 @@ export class Game extends Scene {
 
     // sync logs
 
-    if (this.walked >= this.goal) {
-      this.setGameOver();
-      return;
-    }
+    this.checkAndApplyScore();
+
+    // TODO: add goal and levels later??
+    // if (this.walked >= this.goal) {
+    //   this.setGameOver();
+    //   return;
+    // }
 
     if (this.walkedBack >= MAX_WALKED_BACK) {
       this.setGameOver();
@@ -307,7 +357,6 @@ export class Game extends Scene {
       const step = Math.abs(this.yInertia) / 10;
       this.walked += step;
       this.walkedBack = Math.max(0, this.walkedBack - step); // Consider cases where walked forth and back but back is larger
-      this.score = Math.round(this.walked) * 100;
     } else if (this.isMovingBackward) {
       this.lines.forEach((line) => {
         line.moveBy(0, -this.yInertia);
